@@ -102,3 +102,9 @@ Voice Command <br/>
 17 Sustainable Development Goals <br/>
 Documentation <br/>
 
+![aha1](https://user-images.githubusercontent.com/62885850/109424934-0bfdd680-79f7-11eb-8af1-fdc6ecbeff52.png)
+![aha2](https://user-images.githubusercontent.com/62885850/109424952-2041d380-79f7-11eb-9efa-ea951050ef53.png)
+![aha3](https://user-images.githubusercontent.com/62885850/109424969-2cc62c00-79f7-11eb-9ddd-1aa3444b2e21.png)
+![aha4](https://user-images.githubusercontent.com/62885850/109424981-364f9400-79f7-11eb-969a-5d94677297a1.png)
+![aha5](https://user-images.githubusercontent.com/62885850/109424983-364f9400-79f7-11eb-852e-e13b959ae7a9.png)
+![aha6](https://user-images.githubusercontent.com/62885850/109424980-351e6700-79f7-11eb-9539-f7fe30029ce9.png)
