@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="10"
+    tools:context=".MainActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+    <ImageView
+        android:id="@+id/imgMic"
+        android:src="@drawable/ic_baseline_mic_24"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:paddingLeft="10dp"
+        android:backgroundTint="#F9F8FA"/>
+    <EditText
+        android:id="@+id/txtMic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/imgMic"
+        android:layout_marginRight="15dp"
+        android:padding="10dp"
+        android:hint="Tap to Speak"
+        android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/imgViewCamera"
+        android:layout_marginTop="75dp"
+        android:src="@drawable/ic_baseline_photo_camera_back_24"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"/>
+    <TextView
+        android:id="@+id/txtDescriptionPic"
+        android:text="Pokemon, gotta catch 'em all, it's you and me.I know it's my destiny.Pokemonnnnn, oh, you're my best friend.In a world we must defend"
+        android:textAlignment="center"
+        android:textSize="20dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>
