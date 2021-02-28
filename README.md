@@ -17,12 +17,11 @@ caylio64@gmail.com  <br/>
 
 ### 0. Who we are ?
 
-Yusuf Gültaç,Warszawa Akademia Finansów i Biznesu Vistula, Computer Engineering BA
+Yusuf Gültaç, Warszawa Akademia Finansów i Biznesu Vistula, Computer Engineering, BA,
 Android  Developer
 ygultac@hotmail.com
 
-Özkan Çaylı İzmır Katip Çelebi University
-Electrical Electronics Engineer MA 
+Özkan Çaylı, İzmır Katip Çelebi University, Electrical Electronics Engineer, MA, 
 Machine Learning and AI
 caylio64@gmail.com
 
