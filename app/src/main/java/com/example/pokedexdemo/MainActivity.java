@@ -24,6 +24,18 @@ import android.widget.Toast;
 
 import com.example.pokedexdemo.databinding.ActivityMainBinding;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.pytorch.IValue;
+import org.pytorch.Module;
+import org.pytorch.PyTorchAndroid;
+import org.pytorch.Tensor;
+import org.pytorch.torchvision.TensorImageUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.FloatBuffer;
+import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -34,8 +46,16 @@ public class MainActivity extends AppCompatActivity {
     TextToSpeech textToSpeech;
     public static final Integer RecordAudioRequestCode = 1;
     private static final int MY_CAMERA_REQUEST_CODE = 2;
+    private static final int HIDDEN_SIZE = 2048;
+    private static final int EOS_TOKEN = 2;
+    private static final int MAX_LENGTH = 50;
+    private static final int PERMISSION_CODE = 1002;
+
     private SpeechRecognizer speechRecognizer;
     ArrayList<String> data;
+    private Module mModuleEncoder;
+    private Module mModuleDecoder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Bitmap bitmap =(Bitmap)data.getExtras().get("data");
         binding.imgViewCamera.setImageBitmap(bitmap);
+        String result = generateCaption(bitmap);
+        binding.txtDescriptionPic.setText(result);
     }
 
     private void textToSpeech(){
@@ -165,5 +187,98 @@ public class MainActivity extends AppCompatActivity {
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 Toast.makeText(this,"Permission Granted",Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    private String generateCaption(Bitmap inputImage) {
+        mModuleEncoder = PyTorchAndroid.loadModuleFromAsset(getAssets(), "encoder.pth");
+        mModuleDecoder = PyTorchAndroid.loadModuleFromAsset(getAssets(), "decoder.pth");
+
+        String json;
+        JSONObject wrd2idx;
+        JSONObject idx2wrd;
+        try {
+            InputStream is = getAssets().open("index2word.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+            idx2wrd = new JSONObject(json);
+
+            is = getAssets().open("word2index.json");
+            size = is.available();
+            buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+
+            json = new String(buffer, "UTF-8");
+            wrd2idx = new JSONObject(json);
+        } catch (JSONException | IOException e) {
+            android.util.Log.e("TAG", "JSONException | IOException ", e);
+            return null;
+        }
+
+        // preparing input tensor
+        final Tensor inputTensor = TensorImageUtils.bitmapToFloat32Tensor(inputImage,
+                TensorImageUtils.TORCHVISION_NORM_MEAN_RGB, TensorImageUtils.TORCHVISION_NORM_STD_RGB);
+
+        // running the model
+        final Tensor featureTensor = mModuleEncoder.forward(IValue.from(inputTensor)).toTensor();
+        final long[] outputsShape = new long[]{MAX_LENGTH, HIDDEN_SIZE};
+        final FloatBuffer outputsTensorBuffer =
+                Tensor.allocateFloatBuffer(MAX_LENGTH  * HIDDEN_SIZE);
+
+        // DECODER GENERATE CAPTION
+        final long[] decoderInputShape = new long[]{1, 1};
+        LongBuffer mInputTensorBuffer = Tensor.allocateLongBuffer(1);
+        mInputTensorBuffer.put(1);
+        Tensor mInputTensor = Tensor.fromBlob(mInputTensorBuffer, decoderInputShape);
+
+        Tensor hiddenTensor = featureTensor;
+
+
+
+
+        Tensor outputsTensor = Tensor.fromBlob(outputsTensorBuffer, outputsShape);
+
+
+//        IValue.from(outputsTensor)
+        ArrayList<Integer> result = new ArrayList<>(MAX_LENGTH);
+        for (int i=0; i<MAX_LENGTH; i++) {
+            final IValue[] outputTuple = mModuleDecoder.forward(
+                    IValue.from(mInputTensor),
+                    IValue.from(hiddenTensor)).toTuple();
+            final Tensor decoderOutputTensor = outputTuple[0].toTensor();
+            hiddenTensor = outputTuple[1].toTensor();
+            float[] outputs = decoderOutputTensor.getDataAsFloatArray();
+            int topIdx = 0;
+            double topVal = -Double.MAX_VALUE;
+            for (int j=0; j<outputs.length; j++) {
+                if (outputs[j] > topVal) {
+                    topVal = outputs[j];
+                    topIdx = j;
+                }
+            }
+
+            if (topIdx == EOS_TOKEN) break;
+
+            result.add(topIdx);
+            mInputTensorBuffer = Tensor.allocateLongBuffer(1);
+            mInputTensorBuffer.put(topIdx);
+            mInputTensor = Tensor.fromBlob(mInputTensorBuffer, decoderInputShape);
+        }
+        String english = "";
+        try {
+            for (int i = 0; i < result.size(); i++)
+                english += " " + idx2wrd.getString("" + result.get(i));
+        }
+        catch (JSONException e) {
+            android.util.Log.e("TAG", "JSONException ", e);
+        }
+        return english;
+
+
     }
 }
